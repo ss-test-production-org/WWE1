@@ -130,7 +130,7 @@ class BulkImport::Base
   end
 
   def imported_ids(name)
-    map = []
+    map = {}
     ids = []
 
     @raw_connection.send_query(
@@ -139,9 +139,9 @@ class BulkImport::Base
     @raw_connection.set_single_row_mode
 
     @raw_connection.get_result.stream_each do |row|
-      id = row["value"].to_i
+      id = row["value"]
       ids << id
-      map[id] = row["#{name}_id"].to_i
+      map[id] = row["#{name}_id"]
     end
 
     @raw_connection.get_result
@@ -149,6 +149,7 @@ class BulkImport::Base
     [map, ids]
   end
 
+  # FIXME Calculating last_imported_*_id doesn't work for strings!
   def load_imported_ids
     puts "Loading imported group ids..."
     @groups, imported_group_ids = imported_ids("group")
@@ -178,7 +179,7 @@ class BulkImport::Base
 
   def last_id(klass)
     # the first record created will have id of this value + 1
-    [klass.unscoped.maximum(:id) || 0, 0].max
+    klass.unscoped.maximum(:id) || 0
   end
 
   def load_values(name, column, size)
@@ -202,8 +203,9 @@ class BulkImport::Base
     puts "Loading users indexes..."
     @last_user_id = last_id(User)
     @last_user_email_id = last_id(UserEmail)
-    @emails =
-      User.unscoped.joins(:user_emails).pluck(:"user_emails.email", :"user_emails.user_id").to_h
+    @last_sso_record_id = last_id(SingleSignOnRecord)
+    @emails = UserEmail.pluck(:email, :user_id).to_h
+    @external_ids = SingleSignOnRecord.pluck(:external_id, :user_id).to_h
     @usernames_lower = User.unscoped.pluck(:username_lower).to_set
     @mapped_usernames =
       UserCustomField
@@ -214,6 +216,7 @@ class BulkImport::Base
 
     puts "Loading categories indexes..."
     @last_category_id = last_id(Category)
+    @highest_category_position = Category.unscoped.maximum(:position) || 0
     @category_names =
       Category
         .unscoped
@@ -256,6 +259,11 @@ class BulkImport::Base
     if @last_user_email_id > 0
       @raw_connection.exec("SELECT setval('#{UserEmail.sequence_name}', #{@last_user_email_id})")
     end
+    if @last_sso_record_id > 0
+      @raw_connection.exec(
+        "SELECT setval('#{SingleSignOnRecord.sequence_name}', #{@last_sso_record_id})",
+      )
+    end
     if @last_category_id > 0
       @raw_connection.exec("SELECT setval('#{Category.sequence_name}', #{@last_category_id})")
     end
@@ -271,23 +279,23 @@ class BulkImport::Base
   end
 
   def group_id_from_imported_id(id)
-    @groups[id.to_i]
+    @groups[id]
   end
 
   def user_id_from_imported_id(id)
-    @users[id.to_i]
+    @users[id]
   end
 
   def category_id_from_imported_id(id)
-    @categories[id.to_i]
+    @categories[id]
   end
 
   def topic_id_from_imported_id(id)
-    @topics[id.to_i]
+    @topics[id]
   end
 
   def post_id_from_imported_id(id)
-    @posts[id.to_i]
+    @posts[id]
   end
 
   def post_number_from_imported_id(id)
@@ -343,6 +351,21 @@ class BulkImport::Base
   ]
 
   USER_PROFILE_COLUMNS ||= %i[user_id location website bio_raw bio_cooked views]
+
+  USER_SSO_RECORD_COLUMNS ||= %i[
+    id
+    user_id
+    external_id
+    last_payload
+    created_at
+    updated_at
+    external_username
+    external_email
+    external_name
+    external_avatar_url
+    external_profile_background_url
+    external_card_background_url
+  ]
 
   GROUP_USER_COLUMNS ||= %i[group_id user_id created_at updated_at]
 
@@ -442,6 +465,9 @@ class BulkImport::Base
   def create_user_profiles(rows, &block)
     create_records(rows, "user_profile", USER_PROFILE_COLUMNS, &block)
   end
+  def create_single_sign_on_records(rows, &block)
+    create_records(rows, "single_sign_on_record", USER_SSO_RECORD_COLUMNS, &block)
+  end
   def create_group_users(rows, &block)
     create_records(rows, "group_user", GROUP_USER_COLUMNS, &block)
   end
@@ -465,7 +491,7 @@ class BulkImport::Base
   end
 
   def process_group(group)
-    @groups[group[:imported_id].to_i] = group[:id] = @last_group_id += 1
+    @groups[group[:imported_id]] = group[:id] = @last_group_id += 1
 
     group[:name] = fix_name(group[:name])
 
@@ -489,13 +515,22 @@ class BulkImport::Base
 
       if existing_user_id = @emails[user[:email]]
         @pre_existing_user_ids << existing_user_id
-        @users[user[:imported_id].to_i] = existing_user_id
+        @users[user[:imported_id]] = existing_user_id
         user[:skip] = true
         return user
       end
     end
 
-    @users[user[:imported_id].to_i] = user[:id] = @last_user_id += 1
+    if user[:external_id].present?
+      if existing_user_id = @external_ids[user[:external_id]]
+        @pre_existing_user_ids << existing_user_id
+        @users[user[:imported_id]] = existing_user_id
+        user[:skip] = true
+        return user
+      end
+    end
+
+    @users[user[:imported_id]] = user[:id] = @last_user_id += 1
 
     imported_username = user[:username].dup
 
@@ -530,7 +565,7 @@ class BulkImport::Base
   end
 
   def process_user_email(user_email)
-    user_id = @users[user_email[:imported_user_id].to_i]
+    user_id = @users[user_email[:imported_user_id]]
     return { skip: true } if @pre_existing_user_ids.include?(user_id)
 
     user_email[:id] = @last_user_email_id += 1
@@ -539,8 +574,7 @@ class BulkImport::Base
     user_email[:created_at] ||= NOW
     user_email[:updated_at] ||= user_email[:created_at]
 
-    user_email[:email] ||= random_email
-    user_email[:email].downcase!
+    user_email[:email] = user_email[:email]&.downcase || random_email
     # unique email
     user_email[:email] = random_email until EmailAddressValidator.valid_value?(
       user_email[:email],
@@ -550,7 +584,7 @@ class BulkImport::Base
   end
 
   def process_user_stat(user_stat)
-    user_id = @users[user_stat[:imported_user_id].to_i]
+    user_id = @users[user_stat[:imported_user_id]]
     return { skip: true } if @pre_existing_user_ids.include?(user_id)
 
     user_stat[:user_id] = user_id
@@ -577,6 +611,18 @@ class BulkImport::Base
     user_profile
   end
 
+  def process_single_sign_on_record(sso_record)
+    user_id = @users[sso_record[:imported_user_id]]
+    return { skip: true } if @pre_existing_user_ids.include?(user_id)
+
+    sso_record[:id] = @last_sso_record_id += 1
+    sso_record[:user_id] = user_id
+    sso_record[:last_payload] ||= ""
+    sso_record[:created_at] = NOW
+    sso_record[:updated_at] = NOW
+    sso_record
+  end
+
   def process_group_user(group_user)
     group_user[:created_at] = NOW
     group_user[:updated_at] = NOW
@@ -584,8 +630,14 @@ class BulkImport::Base
   end
 
   def process_category(category)
+    if category[:existing_id].present?
+      @categories[category[:imported_id]] = category[:existing_id]
+      category[:skip] = true
+      return category
+    end
+
     category[:id] ||= @last_category_id += 1
-    @categories[category[:imported_id].to_i] ||= category[:id]
+    @categories[category[:imported_id]] ||= category[:id]
     category[:name] = category[:name][0...50].scrub.strip
     # TODO: unique name
     category[:name_lower] = category[:name].downcase
@@ -594,11 +646,19 @@ class BulkImport::Base
     category[:user_id] ||= Discourse::SYSTEM_USER_ID
     category[:created_at] ||= NOW
     category[:updated_at] ||= category[:created_at]
+
+    if category[:position]
+      @highest_category_position = category[:position] if category[:position] >
+        @highest_category_position
+    else
+      category[:position] = @highest_category_position += 1
+    end
+
     category
   end
 
   def process_topic(topic)
-    @topics[topic[:imported_id].to_i] = topic[:id] = @last_topic_id += 1
+    @topics[topic[:imported_id]] = topic[:id] = @last_topic_id += 1
     topic[:archetype] ||= Archetype.default
     topic[:title] = topic[:title][0...255].scrub.strip
     topic[:fancy_title] ||= pre_fancy(topic[:title])
@@ -616,7 +676,7 @@ class BulkImport::Base
   end
 
   def process_post(post)
-    @posts[post[:imported_id].to_i] = post[:id] = @last_post_id += 1
+    @posts[post[:imported_id]] = post[:id] = @last_post_id += 1
     post[:user_id] ||= Discourse::SYSTEM_USER_ID
     post[:last_editor_id] = post[:user_id]
     @highest_post_number_by_topic_id[post[:topic_id]] ||= 0

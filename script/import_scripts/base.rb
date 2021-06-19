@@ -85,6 +85,7 @@ class ImportScripts::Base
       clean_up_unused_staged_users_after_days: 0,
       clean_up_uploads: false,
       clean_orphan_uploads_grace_period_hours: 1800,
+      full_name_required: false,
     }
   end
 
@@ -309,8 +310,12 @@ class ImportScripts::Base
     opts.delete(:id)
     merge = opts.delete(:merge)
     post_create_action = opts.delete(:post_create_action)
+    sso_record = opts.delete(:sso_record)
 
-    existing = find_existing_user(opts[:email], opts[:username])
+    existing = find_existing_user(opts[:email], sso_record&.fetch("external_id"))
+    return existing if existing
+
+    existing = User.where(username: opts[:username]).first
     if existing && (merge || existing.custom_fields["import_id"].to_s == import_id.to_s)
       return existing
     end
@@ -409,15 +414,47 @@ class ImportScripts::Base
       end
     end
 
+    u.create_single_sign_on_record!(sso_record) if sso_record
+
     post_create_action.try(:call, u) if u.persisted?
 
     u # If there was an error creating the user, u.errors has the messages
   end
 
-  def find_existing_user(email, username)
+  def find_existing_user(email, external_id)
     # Force the use of the index on the 'user_emails' table
-    UserEmail.where("lower(email) = ?", email.downcase).first&.user ||
-      User.where(username: username).first
+    user = UserEmail.where("lower(email) = ?", email.downcase).first&.user
+    user ||= SingleSignOnRecord.where(external_id: external_id).first&.user if external_id.present?
+    user
+  end
+
+  def create_group_members(results, opts = {})
+    created = 0
+    total = opts[:total] || results.count
+    group = nil
+    group_member_ids = []
+
+    results.each_with_index do |result, index|
+      member = yield(result)
+
+      if !group || group.id != member[:group_id]
+        if group_member_ids.any?
+          group.bulk_add(group_member_ids)
+          group_member_ids = []
+        end
+
+        group = Group.find(member[:group_id])
+      end
+
+      group_member_ids << member[:user_id]
+      group.bulk_add(group_member_ids) if index == results.size - 1 && group_member_ids.any?
+
+      created += 1
+
+      print_status(created + (opts[:offset] || 0), total, get_start_time("group_members"))
+    end
+
+    created
   end
 
   def created_category(category)

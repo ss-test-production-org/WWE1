@@ -1047,6 +1047,7 @@ class Topic < ActiveRecord::Base
         skip_validations: true,
         custom_fields: opts[:custom_fields],
         import_mode: opts[:import_mode],
+        created_at: opts[:created_at],
       )
 
     if (new_post = creator.create) && new_post.present?
