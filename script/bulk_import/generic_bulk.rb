@@ -2,6 +2,7 @@
 
 require_relative "base"
 require "sqlite3"
+require "json"
 
 class BulkImport::Generic < BulkImport::Base
   AVATAR_DIRECTORY = ENV["AVATAR_DIRECTORY"]
@@ -28,6 +29,9 @@ class BulkImport::Generic < BulkImport::Base
     import_single_sign_on_records
     import_topics
     import_posts
+    import_topic_allowed_users
+    import_likes
+    import_user_stats
   end
 
   def import_categories
@@ -83,6 +87,8 @@ class BulkImport::Generic < BulkImport::Base
         email: row["email"],
         external_id: sso_record&.fetch("external_id"),
         created_at: to_datetime(row["created_at"]),
+        admin: row["admin"],
+        moderator: row["moderator"],
       }
     end
   end
@@ -137,6 +143,7 @@ class BulkImport::Generic < BulkImport::Base
 
     create_topics(topics) do |row|
       {
+        archetype: row["private_message"] ? Archetype.private_message : Archetype.default,
         imported_id: row["id"],
         title: row["title"],
         user_id: user_id_from_imported_id(row["user_id"]),
@@ -145,6 +152,29 @@ class BulkImport::Generic < BulkImport::Base
         closed: to_boolean(row["closed"]),
       }
     end
+  end
+
+  def import_topic_allowed_users
+    puts "Importing topic_allowed_users..."
+
+    topics = @db.execute(<<~SQL)
+      SELECT ROWID, *
+      FROM topics
+      WHERE private_message IS NOT NULL
+      ORDER BY ROWID
+    SQL
+
+    added = 0
+
+    create_topic_allowed_users(topics) do |row|
+      next unless topic_id = topic_id_from_imported_id(row["id"])
+      imported_user_id = JSON.parse(row["private_message"])["user_ids"].first
+      user_id = user_id_from_imported_id(imported_user_id)
+      added += 1
+      { topic_id: topic_id, user_id: user_id }
+    end
+
+    puts "", "Added #{added} topic_allowed_users records."
   end
 
   def import_posts
@@ -166,7 +196,92 @@ class BulkImport::Generic < BulkImport::Base
         user_id: user_id_from_imported_id(row["user_id"]),
         created_at: to_datetime(row["created_at"]),
         raw: row["raw"],
+        like_count: row["like_count"],
       }
+    end
+  end
+
+  def import_likes
+    puts "Importing likes..."
+
+    @imported_likes = Set.new
+
+    likes = @db.execute(<<~SQL)
+      SELECT ROWID, *
+      FROM likes
+      ORDER BY ROWID
+    SQL
+
+    create_post_actions(likes) do |row|
+      post_id = post_id_from_imported_id(row["post_id"])
+      user_id = user_id_from_imported_id(row["user_id"])
+
+      next if post_id.nil? || user_id.nil?
+      next if @imported_likes.add?([post_id, user_id]).nil?
+
+      {
+        post_id: post_id_from_imported_id(row["post_id"]),
+        user_id: user_id_from_imported_id(row["user_id"]),
+        post_action_type_id: 2,
+        created_at: to_datetime(row["created_at"]),
+      }
+    end
+  end
+
+  def import_user_stats
+    puts "Importing user stats..."
+
+    users = @db.execute(<<~SQL)
+      WITH posts_counts AS (
+        SELECT COUNT(p.id) AS count, p.user_id
+        FROM posts p GROUP BY p.user_id
+      ),
+      topic_counts AS (
+        SELECT COUNT(t.id) AS count, t.user_id
+        FROM topics t GROUP BY t.user_id
+      ),
+      first_post AS (
+        SELECT MIN(p.created_at) AS created_at, p.user_id
+        FROM posts p GROUP BY p.user_id ORDER BY p.created_at ASC
+      )
+      SELECT u.id AS user_id, u.created_at, pc.count AS posts, tc.count AS topics, fp.created_at AS first_post
+      FROM users u
+      JOIN posts_counts pc ON u.id = pc.user_id
+      JOIN topic_counts tc ON u.id = tc.user_id
+      JOIN first_post fp ON u.id = fp.user_id
+    SQL
+
+    create_user_stats(users) do |row|
+      user = {
+        imported_id: row["user_id"],
+        imported_user_id: row["user_id"],
+        new_since: to_datetime(row["created_at"]),
+        post_count: row["posts"],
+        topic_count: row["topics"],
+        first_post_created_at: to_datetime(row["first_post"])
+      }
+
+      likes_received = @db.execute(<<~SQL)
+        SELECT COUNT(l.id) AS likes_received
+        FROM likes l JOIN posts p ON l.post_id = p.id
+        WHERE p.user_id = #{row["user_id"]}
+      SQL
+
+      if likes_received
+        user[:likes_received] = row["likes_received"]
+      end
+
+      likes_given = @db.execute(<<~SQL)
+        SELECT COUNT(l.id) AS likes_given
+        FROM likes l
+        WHERE l.user_id = #{row["user_id"]}
+      SQL
+
+      if likes_given
+        user[:likes_given] = row["likes_given"]
+      end
+
+      user
     end
   end
 

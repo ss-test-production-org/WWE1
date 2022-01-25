@@ -692,6 +692,7 @@ class BulkImport::Base
         post[:raw]
       end
     end
+    post[:raw] = normalize_text(post[:raw])
     post[:like_count] ||= 0
     post[:cooked] = pre_cook post[:raw]
     post[:hidden] ||= false
