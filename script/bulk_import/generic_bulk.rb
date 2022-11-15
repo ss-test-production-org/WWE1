@@ -19,6 +19,8 @@ class BulkImport::Generic < BulkImport::Base
     # Now that the migration is complete, do some more work:
 
     Discourse::Application.load_tasks
+
+    puts "running 'import:ensure_consistency' rake task."
     Rake::Task["import:ensure_consistency"].invoke
   end
 
