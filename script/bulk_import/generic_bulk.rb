@@ -150,7 +150,8 @@ class BulkImport::Generic < BulkImport::Base
         user_id: user_id_from_imported_id(row["user_id"]),
         created_at: to_datetime(row["created_at"]),
         category_id: category_id_from_imported_id(row["category_id"]),
-        closed: to_boolean(row["closed"])
+        closed: to_boolean(row["closed"]),
+        views: row["views"],
       }
     end
   end
