@@ -773,6 +773,9 @@ class BulkImport::Base
       end
     end
 
+    # FIXME: this does not count succesfully inserted records that do not happen to have an imported_id field,
+    # which is misguiding and can results in lots of wasted time double checking "0 records imported" prints
+
     if imported_ids.size > 0
       print "\r%7d - %6d/sec" % [imported_ids.size, imported_ids.size.to_f / (Time.now - start)]
       puts

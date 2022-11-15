@@ -176,6 +176,7 @@ class BulkImport::Generic < BulkImport::Base
       user_id = user_id_from_imported_id(imported_user_id)
       added += 1
       {
+        # FIXME: missing imported_id
         topic_id: topic_id,
         user_id: user_id
       }
@@ -227,6 +228,7 @@ class BulkImport::Generic < BulkImport::Base
       next if @imported_likes.add?([post_id, user_id]).nil?
 
       {
+        # FIXME: missing imported_id
         post_id: post_id_from_imported_id(row["post_id"]),
         user_id: user_id_from_imported_id(row["user_id"]),
         post_action_type_id: 2,
