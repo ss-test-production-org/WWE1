@@ -453,6 +453,8 @@ class BulkImport::Base
     user[:last_emailed_at] ||= NOW
     user[:created_at] ||= NOW
     user[:updated_at] ||= user[:created_at]
+    user[:suspended_at] ||= user[:suspended_at]
+    user[:suspended_till] ||= user[:suspended_till] || (200.years.from_now if user[:suspended_at].present?)
     user
   end
 

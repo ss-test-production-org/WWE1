@@ -83,6 +83,12 @@ class BulkImport::Generic < BulkImport::Base
     create_users(users) do |row|
       sso_record = JSON.parse(row["sso_record"]) if row["sso_record"].present?
 
+      if row["suspension"].present?
+        suspension = JSON.parse(row["suspension"])
+        suspended_at = suspension['suspended_at']
+        suspended_till = suspension['suspended_till']
+      end
+
       {
         imported_id: row["id"],
         username: row["username"],
@@ -91,7 +97,9 @@ class BulkImport::Generic < BulkImport::Base
         external_id: sso_record&.fetch("external_id"),
         created_at: to_datetime(row["created_at"]),
         admin: row["admin"],
-        moderator: row["moderator"]
+        moderator: row["moderator"],
+        suspended_at: suspended_at,
+        suspended_till: suspended_till,
       }
     end
   end
