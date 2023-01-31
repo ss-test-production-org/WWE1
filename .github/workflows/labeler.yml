@@ -4,6 +4,7 @@ on:
 
 jobs:
   triage:
+    if: github.actor != 'discourse-translator-bot'
     permissions:
       contents: read
       pull-requests: write
