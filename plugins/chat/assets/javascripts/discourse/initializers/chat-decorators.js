@@ -6,6 +6,8 @@ import DiscourseURL from "discourse/lib/url";
 import { samePrefix } from "discourse-common/lib/get-url";
 import loadScript from "discourse/lib/load-script";
 import { spinnerHTML } from "discourse/helpers/loading-spinner";
+import { escapeExpression } from "discourse/lib/utilities";
+import { emojiUnescape } from "discourse/lib/text";
 
 export default {
   name: "chat-decorators",
@@ -70,6 +72,10 @@ export default {
         id: "lightbox",
       }
     );
+
+    api.decorateChatMessage(this._addUserStatusToMentions, {
+      id: "mentionsUserStatus",
+    });
   },
 
   _getScrollParent(node, maxParentSelector) {
@@ -152,5 +158,46 @@ export default {
         this.initializeWithPluginApi(api, container)
       );
     }
+  },
+
+  _addUserStatusToMentions(element, chatChannel, message) {
+    const mentions = element.querySelectorAll(`a.mention`);
+    mentions.forEach((mention) => {
+      this._updateUserStatus(mention, {
+        description: "off to dentist",
+        emoji: "tooth",
+      });
+    });
+  },
+
+  // _rerenderUserStatusOnMentions() {
+  //   // this._post()?.mentioned_users?.forEach((user) =>
+  //   //   this._rerenderUserStatusOnMention(this.cookedDiv, user)
+  //   // );
+  // },
+  //
+  // _rerenderUserStatusOnMention(element, user) {
+  //   // const href = getURL(`/u/${user.username.toLowerCase()}`);
+  //   const mentions = element.querySelectorAll(`a.mention[href="${href}"]`);
+  //
+  //   mentions.forEach((mention) => {
+  //     this._updateUserStatus(mention, user.status);
+  //   });
+  // },
+
+  _updateUserStatus(mention, status) {
+    this._removeUserStatus(mention);
+    if (status) {
+      this._insertUserStatus(mention, status);
+    }
+  },
+
+  _insertUserStatus(mention, status) {
+    const emoji = escapeExpression(`:${status.emoji}:`);
+    const statusHtml = emojiUnescape(emoji, {
+      class: "user-status",
+      title: this._userStatusTitle(status),
+    });
+    mention.insertAdjacentHTML("beforeend", statusHtml);
   },
 };
