@@ -41,7 +41,7 @@ class ChatMessage < ActiveRecord::Base
   before_save { ensure_last_editor_id }
 
   def mentions
-    ["admin1"]
+    PrettyText.extract_mentions(Nokogiri::HTML5.fragment(cooked))
   end
 
   def validate_message(has_uploads:)
