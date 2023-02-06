@@ -15,12 +15,20 @@ class ChatMessageSerializer < ApplicationSerializer
              :bookmark,
              :available_flags,
              :thread_id,
-             :chat_channel_id
+             :chat_channel_id,
+             :mentioned_users
 
   has_one :user, serializer: ChatMessageUserSerializer, embed: :objects
   has_one :chat_webhook_event, serializer: ChatWebhookEventSerializer, embed: :objects
   has_one :in_reply_to, serializer: ChatInReplyToSerializer, embed: :objects
   has_many :uploads, serializer: UploadSerializer, embed: :objects
+  has_one :chat_mention
+
+  def mentioned_users
+    User
+      .where(username: object.mentions)
+      .map { |user| BasicUserWithStatusSerializer.new(user, root: false) }
+  end
 
   def channel
     @channel ||= @options.dig(:chat_channel) || object.chat_channel
