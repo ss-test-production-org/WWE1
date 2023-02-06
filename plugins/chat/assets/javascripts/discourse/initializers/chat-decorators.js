@@ -163,10 +163,20 @@ export default {
   _addUserStatusToMentions(element, chatChannel, message) {
     const mentions = element.querySelectorAll(`a.mention`);
     mentions.forEach((mention) => {
-      this._updateUserStatus(mention, {
-        description: "off to dentist",
-        emoji: "tooth",
-      });
+      // fixme andrei call here _updateUserStatus instead
+      const status = {
+        description: "surfing",
+        emoji: "surfing_man",
+      };
+      mention.querySelector("img.user-status")?.remove();
+      if (status) {
+        const emoji = escapeExpression(`:${status.emoji}:`);
+        const statusHtml = emojiUnescape(emoji, {
+          class: "user-status",
+          title: status.description,
+        });
+        mention.insertAdjacentHTML("beforeend", statusHtml);
+      }
     });
   },
 
