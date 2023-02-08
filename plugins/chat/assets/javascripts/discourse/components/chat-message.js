@@ -56,6 +56,10 @@ export default class ChatMessage extends Component {
     super(...arguments);
 
     this.cachedFavoritesReactions = this.chatEmojiReactionStore.favorites;
+
+    this.message.mentioned_users.forEach((user) => {
+      user.trackStatus();
+    });
   }
 
   get deletedAndCollapsed() {
@@ -85,6 +89,10 @@ export default class ChatMessage extends Component {
   @action
   teardownChatMessage() {
     cancel(this._invitationSentTimer);
+
+    this.message.mentioned_users.forEach((user) => {
+      user.stopTrackingStatus();
+    });
   }
 
   @action
