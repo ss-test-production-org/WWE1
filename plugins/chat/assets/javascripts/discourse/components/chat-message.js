@@ -59,6 +59,7 @@ export default class ChatMessage extends Component {
 
     this.message.mentioned_users.forEach((user) => {
       user.trackStatus();
+      user.on?.("status-changed", this, "_refreshStatusesOnMentions");
     });
   }
 
@@ -92,7 +93,12 @@ export default class ChatMessage extends Component {
 
     this.message.mentioned_users.forEach((user) => {
       user.stopTrackingStatus();
+      user.off?.("status-changed", this, "_refreshStatusesOnMentions");
     });
+  }
+
+  _refreshStatusesOnMentions() {
+    this._refreshedMessage(this.message);
   }
 
   @action
