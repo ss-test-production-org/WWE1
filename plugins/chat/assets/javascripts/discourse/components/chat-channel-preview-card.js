@@ -10,7 +10,8 @@ export default class ChatChannelPreviewCard extends Component {
 
   channel = null;
 
-  @readOnly("channel.isOpen") showJoinButton;
+  @readOnly("channel.isOpen") isOpen;
+  @readOnly("channel.canJoin") canJoin;
 
   @computed("channel.description")
   get hasDescription() {

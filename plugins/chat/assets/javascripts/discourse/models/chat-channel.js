@@ -119,6 +119,10 @@ export default class ChatChannel extends RestModel {
     return this.currentUserMembership.following;
   }
 
+  get canJoin() {
+    return this.currentUserMembership.can_join_chat_channel;
+  }
+
   canModifyMessages(user) {
     if (user.staff) {
       return !STAFF_READONLY_STATUSES.includes(this.status);
