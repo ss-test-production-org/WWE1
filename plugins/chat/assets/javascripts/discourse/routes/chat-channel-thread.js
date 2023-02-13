@@ -1,5 +1,6 @@
 import DiscourseRoute from "discourse/routes/discourse";
 import { inject as service } from "@ember/service";
+import ChatMessage from "discourse/plugins/chat/discourse/models/chat-message";
 
 export default class ChatChannelThread extends DiscourseRoute {
   @service router;
@@ -17,5 +18,8 @@ export default class ChatChannelThread extends DiscourseRoute {
   afterModel(model) {
     this.chat.activeThread = model;
     this.chatStateManager.openSidePanel();
+    this.chat.activeThread.messages = (
+      this.chat.activeThread.messages || []
+    ).map((message) => ChatMessage.create(message));
   }
 }

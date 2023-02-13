@@ -32,5 +32,13 @@
     </div>
   </div>
   <div class="chat-thread__messages">
+    {{#each this.thread.messages as |message|}}
+      <ChatMessage
+        @message={{message}}
+        @canInteractWithChat="true"
+        @chatChannel={{this.chat.activeChannel}}
+        @fullPage={{this.chatStateManager.isFullPageActive}}
+      />
+    {{/each}}
   </div>
 </div>
