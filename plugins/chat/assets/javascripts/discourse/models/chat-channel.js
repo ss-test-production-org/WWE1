@@ -120,7 +120,7 @@ export default class ChatChannel extends RestModel {
   }
 
   get canJoin() {
-    return this.currentUserMembership.can_join_chat_channel;
+    return this.currentUserMembership.meta?.can_join_chat_channel;
   }
 
   canModifyMessages(user) {
