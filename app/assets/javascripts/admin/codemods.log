@@ -1,0 +1,85 @@
+2023-02-20T18:38:30.812Z [info] [./addon/components/admin-report-table.js]: SUCCESS
+2023-02-20T18:38:31.070Z [info] [./addon/components/site-customization-change-details.js]: SUCCESS
+2023-02-20T18:38:30.860Z [warn] [./addon/components/admin-user-field-item.js]: SKIPPED: Did not find any 'EmberObject.extend()' expressions
+2023-02-20T18:38:30.874Z [info] [./addon/components/admin-wrapper.js]: SUCCESS
+2023-02-20T18:38:30.983Z [error] [./addon/components/admin-theme-editor.js]: FAILURE 
+Validation errors for class 'AdminThemeEditor': 
+	[activeSection]: Transform not supported - value is of type object. For more details: eslint-plugin-ember/avoid-leaking-state-in-ember-objects
+2023-02-20T18:38:30.996Z [info] [./addon/components/cancel-link.js]: SUCCESS
+2023-02-20T18:38:31.058Z [info] [./addon/components/color-input.js]: SUCCESS
+2023-02-20T18:38:31.080Z [info] [./addon/components/admin-watched-word.js]: SUCCESS
+2023-02-20T18:38:31.093Z [info] [./addon/components/themes-list.js]: SUCCESS
+2023-02-20T18:38:31.114Z [info] [./addon/components/install-theme-item.js]: SUCCESS
+2023-02-20T18:38:31.149Z [info] [./addon/components/dashboard-new-features.js]: SUCCESS
+2023-02-20T18:38:31.132Z [info] [./addon/components/site-text-summary.js]: SUCCESS
+2023-02-20T18:38:31.157Z [info] [./addon/components/site-setting.js]: SUCCESS
+2023-02-20T18:38:31.165Z [info] [./addon/components/site-customization-change-field.js]: SUCCESS
+2023-02-20T18:38:31.182Z [warn] [./addon/components/theme-setting-editor.js]: SKIPPED: Did not find any 'EmberObject.extend()' expressions
+2023-02-20T18:38:31.218Z [info] [./addon/components/staff-actions.js]: SUCCESS
+2023-02-20T18:38:31.231Z [info] [./addon/components/tags-uploader.js]: SUCCESS
+2023-02-20T18:38:31.105Z [info] [./addon/components/dashboard-new-feature-item.js]: SUCCESS
+2023-02-20T18:38:31.111Z [info] [./addon/components/admin-report-trust-level-counts.js]: SUCCESS
+2023-02-20T18:38:31.225Z [info] [./addon/components/admin-report.js]: SUCCESS
+2023-02-20T18:38:31.240Z [info] [./addon/components/admin-editable-field.js]: SUCCESS
+2023-02-20T18:38:31.278Z [info] [./addon/components/admin-report-counters.js]: SUCCESS
+2023-02-20T18:38:31.151Z [info] [./addon/components/version-checks.js]: SUCCESS
+2023-02-20T18:38:31.201Z [info] [./addon/components/value-list.js]: SUCCESS
+2023-02-20T18:38:31.247Z [info] [./addon/components/watched-word-uploader.js]: SUCCESS
+2023-02-20T18:38:31.269Z [error] [./addon/components/watched-word-form.js]: FAILURE 
+Validation errors for class 'WatchedWordForm': 
+	[actions]: Transform not supported - [submit]: action name matches one of the lifecycle hooks. Rename and try again. See https://github.com/scalvert/ember-native-class-codemod/issues/34 for more details
+2023-02-20T18:38:31.283Z [warn] [./addon/components/webhook-event.js]: SKIPPED 
+Could not find runtime data NO_RUNTIME_DATA
+2023-02-20T18:38:31.242Z [warn] [./addon/components/theme-translation.js]: SKIPPED: Did not find any 'EmberObject.extend()' expressions
+2023-02-20T18:38:31.259Z [warn] [./addon/components/theme-setting-relatives-selector.js]: SKIPPED: Did not find any 'EmberObject.extend()' expressions
+2023-02-20T18:38:31.287Z [info] [./addon/components/themes-list-item.js]: SUCCESS
+2023-02-20T18:38:31.163Z [info] [./addon/components/dashboard-problems.js]: SUCCESS
+2023-02-20T18:38:31.242Z [info] [./addon/components/emoji-value-list.js]: SUCCESS
+2023-02-20T18:38:31.261Z [info] [./addon/components/flag-user-lists.js]: SUCCESS
+2023-02-20T18:38:31.271Z [info] [./addon/components/flag-user.js]: SUCCESS
+2023-02-20T18:38:31.289Z [info] [./addon/components/highlighted-code.js]: SUCCESS
+2023-02-20T18:38:31.306Z [info] [./addon/components/inline-edit-checkbox.js]: SUCCESS
+2023-02-20T18:38:31.298Z [warn] [./addon/components/webhook-status.js]: SKIPPED 
+Could not find runtime data NO_RUNTIME_DATA
+2023-02-20T18:38:31.327Z [warn] [./addon/components/webhook-event-chooser.js]: SKIPPED 
+Could not find runtime data NO_RUNTIME_DATA
+2023-02-20T18:38:31.337Z [warn] [./addon/components/webhook-events.js]: SKIPPED 
+Could not find runtime data NO_RUNTIME_DATA
+2023-02-20T18:38:31.333Z [error] [./addon/components/email-styles-editor.js]: FAILURE 
+Validation errors for class 'EmailStylesEditor': 
+	[editorContents]: Transform not supported - value is of type object. For more details: eslint-plugin-ember/avoid-leaking-state-in-ember-objects
+2023-02-20T18:38:31.367Z [warn] [./addon/components/embeddable-host.js]: SKIPPED: Did not find any 'EmberObject.extend()' expressions
+2023-02-20T18:38:31.374Z [error] [./addon/components/embedding-setting.js]: FAILURE 
+Validation errors for class 'EmbeddingSetting': 
+	[checked]: Transform not supported - value is of type object. For more details: eslint-plugin-ember/avoid-leaking-state-in-ember-objects
+2023-02-20T18:38:31.189Z [info] [./addon/components/ip-lookup.js]: SUCCESS
+2023-02-20T18:38:31.227Z [info] [./addon/components/permalink-form.js]: SUCCESS
+2023-02-20T18:38:31.239Z [info] [./addon/components/moderation-history-item.js]: SUCCESS
+2023-02-20T18:38:31.251Z [info] [./addon/components/resumable-upload.js]: SUCCESS
+2023-02-20T18:38:31.310Z [info] [./addon/components/secret-value-list.js]: SUCCESS
+2023-02-20T18:38:31.333Z [info] [./addon/components/setting-validation-message.js]: SUCCESS
+2023-02-20T18:38:31.354Z [info] [./addon/components/silence-details.js]: SUCCESS
+2023-02-20T18:38:31.381Z [info] [./addon/components/simple-list.js]: SUCCESS
+2023-02-20T18:38:31.397Z [error] [./addon/components/screened-ip-address-form.js]: FAILURE 
+Validation errors for class 'ScreenedIpAddressForm': 
+	[actions]: Transform not supported - [submit]: action name matches one of the lifecycle hooks. Rename and try again. See https://github.com/scalvert/ember-native-class-codemod/issues/34 for more details
+2023-02-20T18:38:31.266Z [info] [./addon/components/admin-form-row.js]: SUCCESS
+2023-02-20T18:38:31.273Z [info] [./addon/components/admin-nav.js]: SUCCESS
+2023-02-20T18:38:31.316Z [info] [./addon/components/admin-backups-logs.js]: SUCCESS
+2023-02-20T18:38:31.388Z [info] [./addon/components/ace-editor.js]: SUCCESS
+2023-02-20T18:38:31.414Z [info] [./addon/components/admin-graph.js]: SUCCESS
+2023-02-20T18:38:31.424Z [info] [./addon/components/admin-penalty-history.js]: SUCCESS
+2023-02-20T18:38:31.435Z [info] [./addon/components/admin-penalty-similar-users.js]: SUCCESS
+2023-02-20T18:38:31.449Z [error] [./addon/components/admin-penalty-reason.js]: FAILURE 
+Validation errors for class 'AdminPenaltyReason': 
+	[reasonKeys]: Transform not supported - value is of type object. For more details: eslint-plugin-ember/avoid-leaking-state-in-ember-objects
+2023-02-20T18:38:31.460Z [info] [./addon/components/admin-penalty-post-action.js]: SUCCESS
+2023-02-20T18:38:31.370Z [info] [./addon/components/admin-report-chart.js]: SUCCESS
+2023-02-20T18:38:31.394Z [info] [./addon/components/admin-report-counts.js]: SUCCESS
+2023-02-20T18:38:31.403Z [info] [./addon/components/admin-report-inline-table.js]: SUCCESS
+2023-02-20T18:38:31.413Z [info] [./addon/components/admin-report-table-cell.js]: SUCCESS
+2023-02-20T18:38:31.438Z [info] [./addon/components/admin-report-stacked-chart.js]: SUCCESS
+2023-02-20T18:38:31.452Z [info] [./addon/components/admin-report-storage-stats.js]: SUCCESS
+2023-02-20T18:38:31.460Z [info] [./addon/components/admin-report-per-day-counts.js]: SUCCESS
+2023-02-20T18:38:31.469Z [info] [./addon/components/admin-report-table-header.js]: SUCCESS
+2023-02-20T18:38:31.475Z [info] [./addon/components/admin-report-table-row.js]: SUCCESS
