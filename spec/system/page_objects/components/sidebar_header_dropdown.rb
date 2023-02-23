@@ -26,24 +26,15 @@ module PageObjects
       end
 
       def click_community_header_button
-        page.click_button(
-          I18n.t("js.sidebar.sections.community.header_action_title"),
-          class: "sidebar-section-header-button",
-        )
+        find(".sidebar-section-header-button").click
       end
 
       def click_everything_link
-        page.click_link(
-          I18n.t("js.sidebar.sections.community.links.everything.content"),
-          class: "sidebar-section-link-everything",
-        )
+        find(".sidebar-section-link-everything").click
       end
 
       def click_toggle_to_desktop_view_button
-        page.click_button(
-          I18n.t("js.desktop_view"),
-          class: "sidebar-footer-actions-toggle-mobile-view",
-        )
+        find(".sidebar-footer-actions-toggle-mobile-view").click
       end
     end
   end

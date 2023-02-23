@@ -5,7 +5,10 @@ describe "Viewing sidebar mobile", type: :system, js: true, mobile: true do
   let(:sidebar_dropdown) { PageObjects::Components::SidebarHeaderDropdown.new }
   let(:composer) { PageObjects::Components::Composer.new }
 
-  before { sign_in(user) }
+  before do
+    SiteSetting.navigation_menu = "sidebar"
+    sign_in(user)
+  end
 
   around do |example|
     original_disable_animation = Capybara.disable_animation
@@ -69,7 +72,7 @@ describe "Viewing sidebar mobile", type: :system, js: true, mobile: true do
     expect(sidebar_dropdown).to be_hidden
   end
 
-  it "toggles to desktop view after clicking on the toggle to desktop view button" do
+  it "toggles to desktop view after clicking on the toggle to desktop view button", mobile: true do
     visit ("/latest")
 
     expect(page).to have_css(".mobile-view")
