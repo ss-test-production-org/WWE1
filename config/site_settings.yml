@@ -2092,6 +2092,10 @@ developer:
     client: true
     default: false
     hidden: true
+  experimental_search_menu:
+    client: true
+    default: false
+    hidden: true
 
 navigation:
   navigation_menu:
