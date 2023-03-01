@@ -465,8 +465,7 @@ registerWidgetShim(
   "div",
   hbs`<SearchMenu
     @inTopicContext={{@data.inTopicContext}}
-    @clearContext={{@data.clearContext}}
-    @setTopicContext={{@data.setTopicContext}}
+    @searchVisible={{@data.state.searchVisible}}
   />`
 );
 
@@ -518,8 +517,7 @@ export default createWidget("header", {
           panels.push(
             this.attach("glimmer-search-menu", {
               inTopicContext: state.inTopicContext && inTopicRoute,
-              clearContext: () => this.clearContext(),
-              setTopicContext: () => this.setTopicContext(),
+              searchVisible: this.state.searchVisible,
             })
           );
         } else {
@@ -773,7 +771,12 @@ export default createWidget("header", {
   },
 
   focusSearchInput() {
-    if (this.state.searchVisible) {
+    // the glimmer search menu handles the focusing of the search
+    // input within the search component
+    if (
+      this.state.searchVisible &&
+      !this.siteSettings.experimental_search_menu
+    ) {
       schedule("afterRender", () => {
         const searchInput = document.querySelector("#search-term");
         searchInput.focus();
@@ -783,13 +786,11 @@ export default createWidget("header", {
   },
 
   setTopicContext() {
-    console.log("bing");
     this.state.inTopicContext = true;
     this.focusSearchInput();
   },
 
   clearContext() {
-    console.log("bing");
     this.state.inTopicContext = false;
     this.focusSearchInput();
   },
