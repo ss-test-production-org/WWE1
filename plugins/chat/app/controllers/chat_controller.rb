@@ -209,6 +209,7 @@ class Chat::ChatController < Chat::ChatBaseController
 
     messages = preloaded_chat_message_query.where(chat_channel: @chat_channel)
     messages = messages.with_deleted if guardian.can_moderate_chat?(@chatable)
+    messages = messages.where(thread_id: params[:thread_id]) if params[:thread_id]
 
     if message_id.present?
       condition = direction == PAST ? "<" : ">"
@@ -299,6 +300,7 @@ class Chat::ChatController < Chat::ChatBaseController
 
     messages = preloaded_chat_message_query.where(chat_channel: @chat_channel)
     messages = messages.with_deleted if guardian.can_moderate_chat?(@chatable)
+    messages = messages.where(thread_id: params[:thread_id]) if params[:thread_id]
 
     past_messages =
       messages

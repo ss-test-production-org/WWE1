@@ -137,6 +137,7 @@ export default class ChatApi extends Service {
    * @returns {Promise}
    */
   sendMessage(channelId, data = {}) {
+    debugger;
     return ajax(`/chat/${channelId}`, {
       ignoreUnsent: false,
       type: "POST",
@@ -260,6 +261,10 @@ export default class ChatApi extends Service {
 
       if (data.direction) {
         args.direction = data.direction;
+      }
+
+      if (data.threadId) {
+        args.thread_id = data.threadId;
       }
     }
 
