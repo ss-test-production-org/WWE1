@@ -452,6 +452,7 @@ class Chat::ChatController < Chat::ChatBaseController
         .includes(:bookmarks)
         .includes(:uploads)
         .includes(chat_channel: :chatable)
+        .includes(:chat_mentions)
 
     query = query.includes(user: :user_status) if SiteSetting.enable_user_status
 
