@@ -55,7 +55,7 @@ module Chat
 
       moved_messages = nil
 
-      Chat::Message.transaction do
+      Message.transaction do
         create_temp_table
         moved_messages =
           find_messages(
@@ -76,7 +76,7 @@ module Chat
     private
 
     def find_messages(message_ids, channel)
-      Chat::Message
+      Message
         .includes(thread: %i[original_message original_message_user])
         .where(id: message_ids, chat_channel_id: channel.id)
         .order("created_at ASC, id ASC")
@@ -143,7 +143,7 @@ module Chat
       WHERE cmr.chat_message_id = mm.old_chat_message_id
     SQL
 
-      DB.exec(<<~SQL, target_type: Chat::Message.sti_name)
+      DB.exec(<<~SQL, target_type: Message.polymorphic_name)
       UPDATE upload_references uref
       SET target_id = mm.new_chat_message_id
       FROM moved_chat_messages mm
@@ -180,11 +180,11 @@ module Chat
       SET deleted_at = NOW(), deleted_by_id = :deleted_by_id
       WHERE id IN (:source_message_ids)
     SQL
-      Chat::Publisher.publish_bulk_delete!(@source_channel, @source_message_ids)
+      Publisher.publish_bulk_delete!(@source_channel, @source_message_ids)
     end
 
     def add_moved_placeholder(destination_channel, first_moved_message)
-      Chat::MessageCreator.create(
+      MessageCreator.create(
         chat_channel: @source_channel,
         user: Discourse.system_user,
         content:
