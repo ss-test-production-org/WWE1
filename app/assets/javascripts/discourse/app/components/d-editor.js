@@ -424,10 +424,9 @@ export default Component.extend(TextareaTextManipulation, {
         );
 
         previewPromise = loadScript("/javascripts/diffhtml.min.js").then(() => {
-          window.diff.innerHTML(
-            this.element.querySelector(".d-editor-preview"),
-            cookedElement.innerHTML
-          );
+          const preview = this.element.querySelector(".d-editor-preview");
+          window.diff.release(preview);
+          window.diff.innerHTML(preview, cookedElement.innerHTML);
         });
       }
 

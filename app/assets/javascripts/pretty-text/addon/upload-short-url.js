@@ -148,6 +148,12 @@ function _loadCachedShortUrls(uploadElements, siteSettings, opts) {
           }
 
           upload.src = url;
+          if (
+            upload.parentElement.tagName === "AUDIO" ||
+            upload.parentElement.tagName === "VIDEO"
+          ) {
+            upload.parentElement.src = url;
+          }
 
           // set the url and text for the <a> tag within the <video/audio> tag
           const link = upload.parentElement.querySelector("a");
