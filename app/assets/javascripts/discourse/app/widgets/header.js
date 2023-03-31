@@ -642,7 +642,9 @@ export default createWidget("header", {
           document.querySelector("#toggle-hamburger-menu")?.blur();
         } else {
           // auto focus on first link in dropdown
-          document.querySelector(".hamburger-panel .menu-links a")?.focus();
+          document
+            .querySelector(".hamburger-panel .menu-links a")
+            ?.focus({ preventScroll: true });
         }
       });
     }
@@ -755,7 +757,7 @@ export default createWidget("header", {
     if (this.state.searchVisible) {
       schedule("afterRender", () => {
         const searchInput = document.querySelector("#search-term");
-        searchInput.focus();
+        searchInput.focus({ preventScroll: true });
         searchInput.select();
       });
     }

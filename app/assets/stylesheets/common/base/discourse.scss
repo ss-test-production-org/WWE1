@@ -61,6 +61,7 @@
 // Base Elements
 html {
   height: 100%;
+  scroll-padding-top: var(--header-offset, 4em);
 }
 
 body {

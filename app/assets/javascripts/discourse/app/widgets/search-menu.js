@@ -364,7 +364,7 @@ export default createWidget("search-menu", {
   keyDown(e) {
     if (e.key === "Escape") {
       this.sendWidgetAction("toggleSearchMenu");
-      document.querySelector("#search-button").focus();
+      document.querySelector("#search-button").focus({ preventScroll: true });
       e.preventDefault();
       return false;
     }
