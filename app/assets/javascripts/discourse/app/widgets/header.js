@@ -756,9 +756,7 @@ export default createWidget("header", {
   focusSearchInput() {
     if (this.state.searchVisible) {
       schedule("afterRender", () => {
-        const searchInput = document.querySelector("#search-term");
-        searchInput.focus({ preventScroll: true });
-        searchInput.select();
+        document.querySelector("#search-term")?.select();
       });
     }
   },
