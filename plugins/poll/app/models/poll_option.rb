@@ -12,7 +12,7 @@ end
 #  id              :bigint           not null, primary key
 #  poll_id         :bigint
 #  digest          :string           not null
-#  html            :text             not null
+#  html            :string(10000)    not null
 #  anonymous_votes :integer
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
