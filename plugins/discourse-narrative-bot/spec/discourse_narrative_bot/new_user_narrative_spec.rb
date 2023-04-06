@@ -287,6 +287,10 @@ RSpec.describe DiscourseNarrativeBot::NewUserNarrative do
       end
 
       it "should create the right reply when the bookmark is created" do
+        Rails.application.config.relative_url_root = '/plop'
+        ActionController::Base.config.relative_url_root = '/plop'
+        Rails.application.routes.stubs(:relative_url_root).returns("/plop")
+
         post.update!(user: discobot_user)
         narrative.expects(:enqueue_timeout_job).with(user)
 
